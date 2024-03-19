@@ -46,13 +46,25 @@
 
 <script setup>
 import { ref } from 'vue';
+//导入login方法
+import { login } from '@/api/auth';
 const loginForm=ref({
     account: undefined,
     password: undefined,
     rememberMe: undefined
 })
+//声明登录方法
 function handleLogin(){
-    
+    //调用login方法
+    login(loginForm.value).then((res)=>{
+        console.log('登录----->',res)
+        //判断是否成功
+        if(res.data.code == 200){
+            //将token存储到pinia中
+            console.log("登录成功")
+        }
+
+    })
 }
 
 </script>

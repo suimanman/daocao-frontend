@@ -1,8 +1,11 @@
 // 封装axios，做请求处理
 //导入axios
 import axios from "axios";
+//引入router
+import router from "@/router";
+import { ElMessage } from "element-plus";
 
-let token="ssa";
+let token="";
 
 //创建axios
 const request=axios.create({
@@ -32,7 +35,45 @@ request.interceptors.request.use((config)=>{
 )
 
 //配置响应拦截器
-request.interceptors.response((response)=>{
+request.interceptors.response.use((response)=>{
     //判断响应码，后端返回的数据 code，data，msg
-    
-})
+    let {msg,code}=response.data
+    console.log("code------->",code,"msg- ------->",msg);
+    if(code == null){
+        return response;
+    }else if(code == 200){
+        return response;
+    }else if(code == 500){
+        ElMessage({
+            showClose: true,
+            message: '服务端异常！',
+            type: 'error',
+          })
+    }else if(code == 401){
+        ElMessage({
+            showClose: true,
+            message: '没有操作权限！',
+            type: 'error',
+          })
+    }else if(code == 403){
+        ElMessage({
+            showClose: true,
+            message: '登录过期！',
+            type: 'error',
+          })
+          //需要重新登录，跳转到登录页面，清除pinia中的数据，sessionStorage中
+          window.sessionStorage.clear();
+          router.push('/login');
+    }
+    return Promise.reject(msg);
+    },(error)=>{
+        //出现异常
+        ElMessage.error('error------>',error);
+        window.sessionStorage.clear();
+        router.push('/login');
+        return Promise.reject(error);
+    }
+    )
+
+    //导出
+    export default request;
