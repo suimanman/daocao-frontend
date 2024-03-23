@@ -5,7 +5,8 @@ import axios from "axios";
 import router from "@/router";
 import { ElMessage } from "element-plus";
 
-let token="";
+//获取token
+import { getToken } from "./token";
 
 //创建axios
 const request=axios.create({
@@ -22,8 +23,8 @@ request.interceptors.request.use((config)=>{
 
     //在请求头中添加token，判断是否需要发送token
     //token应该从pinia中获取
-    if(token){
-        config.headers['Daocao-Authorization']=token;
+    if(getToken("daocaoToken")){
+        config.headers['Daocao-Authorization']=getToken("daocaoToken");
     }
     return config;
     },(error)=>{

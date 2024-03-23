@@ -48,6 +48,20 @@
 import { ref } from 'vue';
 //导入login方法
 import { login } from '@/api/auth';
+//  引入token的js
+import { setToken } from '@/utils/token';
+
+import { searchSelfRouter } from '@/api/user';
+//引入store
+import { useMenuStore } from '@/stores/menu';
+//引入router
+import { useRouter } from 'vue-router';
+
+const router=useRouter();
+//构建
+const menuStore = useMenuStore();
+
+
 const loginForm=ref({
     account: undefined,
     password: undefined,
@@ -60,8 +74,20 @@ function handleLogin(){
         console.log('登录----->',res)
         //判断是否成功
         if(res.data.code == 200){
-            //将token存储到pinia中
-            console.log("登录成功")
+            //将token存储到sessionStorage中
+            setToken("daocaoToken",res.data.token);
+            //TODO 查询用户的权限和菜单【设置页面路由实现动态路由】
+            searchSelfRouter().then(res =>{
+                if(res.data.code == 200){
+                    //将路由信息存储到pinia中
+                    menuStore.setMenuList(res.data.data);
+                    router.push("/index")
+                    //跳转页面 /index
+                    //1.渲染动态路由，在路由守卫上渲染
+                    //2.开发项目主页面，左侧导航，头部，主体部分
+                }
+                
+            })
         }
 
     })
