@@ -1,5 +1,4 @@
-
-import { defineStore } from "pinia";
+import { defineStore } from 'pinia';
 //导入查询用户菜单接口
 import { searchSelfRouter } from "@/api/user";
 
@@ -7,12 +6,16 @@ export const useMenuStore = defineStore('menu',{
     //定义状态
     state: () => ({ 
         menuList:[],
-        routerList:[] //动态路由数据，也就是左侧菜单的路由信息
+        routerList:[], //动态路由数据，也就是左侧菜单的路由信息
+        tabList:[{title:'首页',path:'/index'}],//所有Tab
+        activeTab: '/index'//当前选中Tab
     }),
     //获取数据
     getters: {
       Array: (state) => state.menuList ,
-      Array: (state) => state.routerList 
+      Array: (state) => state.routerList ,
+      Array: (state) => state.tabList ,
+      String: (state) => state.activeTab , 
     },
 
     //修改数据
@@ -59,13 +62,32 @@ export const useMenuStore = defineStore('menu',{
             reject();
           })
         })
+      },
+      //设置TabList
+      setTabList(data){
+        this.tabList.push(data);
+      },
+      //删除tabList
+      deleteTabList(name){
+        this.tabList=this.tabList.filter(item => {
+          if(item.path==name){
+            return false;
+          }else
+          {
+            return true;
+          } 
+        })
+      },
+      //设置activeTab
+      setActive(name){
+        this.activeTab = name;
       }
-    },
-    //使用持久化
-    persist: {
-      enabled: true,
-      storage: localStorage,
-      key:'useMenu',
-      path:['menuList','routerList']
     }
+    //使用持久化
+    // persist: {
+    //   enabled: true,
+    //   storage: localStorage,
+    //   key:'useMenu',
+    //   path:['menuList','routerList']
+    // }
 })

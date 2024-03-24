@@ -73,7 +73,16 @@
   }
   //点击切换路由
   function handleRouter(menu){
-    router.push(menu.path)
+    router.push(menu.path);
+    //向tabList中添加数据
+    let hasNode=menuStore.tabList.filter(item => item.path == menu.path)
+    if(hasNode==null || hasNode.length==0){
+        let data={title: menu.menuName,path: menu.path};
+        menuStore.setTabList(data);
+    }
+    //修改activeTab
+    menuStore.setActive(menu.path);
+    console.log("menu.path-------->",menu.path);
   }
 </script>
   
