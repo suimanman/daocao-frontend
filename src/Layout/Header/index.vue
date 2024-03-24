@@ -35,11 +35,12 @@
 </template>
 
 <script setup>
-import { avatarEmits } from 'element-plus';
+import { useUserStore } from '@/stores/user';
+import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 const breadcrumbList=ref(['系统管理','用户管理'])
-const avatar=ref('https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg')
-const nickname=ref('岁漫')
+const userStore=useUserStore();
+let {avatar,nickname}=storeToRefs(userStore);
 </script>
 
 <style lang="scss" scoped>

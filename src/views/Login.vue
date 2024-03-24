@@ -51,16 +51,17 @@ import { login } from '@/api/auth';
 //  引入token的js
 import { setToken } from '@/utils/token';
 
-import { searchSelfRouter } from '@/api/user';
+import { searchSelfRouter ,searchSelfInfo} from '@/api/user';
 //引入store
 import { useMenuStore } from '@/stores/menu';
+import {useUserStore} from '@/stores/user'
 //引入router
 import { useRouter } from 'vue-router';
 
 const router=useRouter();
 //构建
 const menuStore = useMenuStore();
-
+const userStore = useUserStore();
 
 const loginForm=ref({
     account: undefined,
@@ -85,8 +86,14 @@ function handleLogin(){
                     //跳转页面 /index
                     //1.渲染动态路由，在路由守卫上渲染
                     //2.开发项目主页面，左侧导航，头部，主体部分
+                }    
+            })
+            //查询个人信息
+            searchSelfInfo().then(res =>{
+                //存到pinia中
+                if(res.data.code==200){
+                    userStore.setUserInfo(res.data.data);
                 }
-                
             })
         }
 

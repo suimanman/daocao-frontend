@@ -8,3 +8,11 @@ export function searchSelfRouter(){
         method: 'GET'
     })
 }
+//查询个人信息
+export function searchSelfInfo(){
+
+    return request({
+        url: '/sys/user/info',
+        method: 'GET'
+    })
+}
