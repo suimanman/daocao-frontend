@@ -61,7 +61,6 @@
   const router=useRouter();
   const menuStore=useMenuStore();
   const {menuList} = storeToRefs(menuStore);
-  console.log("menulist-------------",menuList);
 
 
   //判断有无子菜单
@@ -82,7 +81,6 @@
     }
     //修改activeTab
     menuStore.setActive(menu.path);
-    console.log("menu.path-------->",menu.path);
   }
 </script>
   

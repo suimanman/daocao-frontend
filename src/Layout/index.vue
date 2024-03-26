@@ -34,7 +34,6 @@
   //获取文档高度
   function getHeight(){
     height.value = document.documentElement.clientHeight;
-    console.log(height.value);
   }
 </script>
 
