@@ -21,7 +21,7 @@
         </el-col>
     </el-row>
     <!-- 列表 -->
-    <el-table :data="menuList" style="width: 100%">
+    <el-table :data="menuList" style="width: 100%" row-key="id">
         <el-table-column type="selection" width="55" />
         <el-table-column type="index" label="序号" width="50" />
         <el-table-column prop="menuName" label="菜单名称" width="100" />
@@ -68,7 +68,20 @@
             <el-row :gutter="50">
                 <el-col :span="12">
                     <el-form-item label="菜单图标" props="form.icon">
-                        <el-input v-model="form.icon" placeholder="请选择菜单图标" clearable />
+                        <el-popover placement="bottom-start" :width="340" trigger="click">
+                            <template #reference>
+                                <el-input v-model="form.icon" placeholder="请输入菜单名称" clearable>
+                                    <template #prefix>
+                                        <svg-icon v-if="form.icon" slot="prefix" :name="form.icon" width="16px"
+                                            height="16px" />
+                                        <el-icon v-else class="el-input__icon">
+                                            <search />
+                                        </el-icon>
+                                    </template>
+                                </el-input>
+                            </template>
+                            <IconSelect ref="iconSelect" @selected="handleSelect" :active-icon="form.icon" />
+                        </el-popover>
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
@@ -122,7 +135,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref,onMounted } from 'vue';
+import IconSelect from '@/components/IconSelect/index'
+import {searchMenuList} from '@/api/menu/index'
 let total = ref(0)
 let queryForm = ref({
     menuName: undefined,
@@ -132,30 +147,7 @@ let queryForm = ref({
 })
 let menuFormShow = ref(false);
 let menuTitle = ref("")
-let menuList = ref([
-    {
-        id: 1,
-        menuName: '菜单管理',
-        perms: 'system:menu:list',
-        path: '/system/menu/list',
-        componentPath: 'systemMenu',
-        createTime: '2024-3-25 20:54:00',
-        updateTime: '2024-3-25 20:54:00',
-        remark: '备注',
-        children: []
-    },
-    {
-        id: 2,
-        menuName: '菜单管理',
-        perms: 'system:menu:list',
-        path: '/system/menu/list',
-        componentPath: 'systemMenu',
-        createTime: '2024-3-25 20:54:00',
-        updateTime: '2024-3-25 20:54:00',
-        remark: '备注',
-        children: []
-    }
-])
+let menuList = ref([])
 let form = ref({
     id: undefined,
     parentId: undefined,
@@ -170,34 +162,7 @@ let form = ref({
     remark: undefined
 })
 //树形选择器
-let menuSelectData=ref([
-    {
-        value: '1',
-        label: '系统管理',
-        children: [
-            {
-                value: '1-1',
-                label: '菜单管理',
-                children: [
-                    {
-                        value: '1-1-1',
-                        label: '新增',
-                    },
-                ],
-            },
-        ],
-    },
-    {
-        value: '2',
-        label: '工具管理',
-        children: [
-            {
-                value: '2-1',
-                label: '代码生成',
-            }
-        ],
-    },
-])
+let menuSelectData=ref([])
 //菜单选择器
 let menuTypeOptions=ref([
     {
@@ -213,6 +178,34 @@ let menuTypeOptions=ref([
         label: "按钮"
     }
 ])
+onMounted(()=>{
+    searchMenu();
+})
+function searchMenu() {
+    searchMenuList().then(res => {
+        if (res.data.code == 200) {
+            menuList.value = res.data.data;
+            let menuSelect=[];
+            menuSelect.push({label:'主目录',value:0,children:[]})
+            for(const item of res.data.data){
+                let label=item.menuName;
+                let value = item.id;
+                let childrenList=[];
+                if(item.children.length >0){
+                    for(const childrenItem of item.children ){
+                        let label=childrenItem.menuName;
+                        let value=childrenItem.id;
+                        let children={label:label,value:value};
+                        childrenList.push(children)
+                    }
+                }
+                let menu={label:label,value:value,children:childrenList};
+                menuSelect[0].children.push(menu);
+            }
+            menuSelectData.value=menuSelect;
+        }
+    })
+}
 //搜索
 function handleQuery() {
 
@@ -240,6 +233,10 @@ function handleRemove() {
 //关闭弹窗
 function handleClose() {
     menuFormShow.value = false;
+}
+function handleSelect(name){
+    form.value.icon=name;
+
 }
 </script>
 <style lang="scss" scoped>
