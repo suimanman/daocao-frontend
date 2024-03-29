@@ -24,7 +24,7 @@
     <el-table :data="menuList" style="width: 100%" row-key="id">
         <el-table-column type="selection" width="55" />
         <el-table-column type="index" label="序号" width="50" />
-        <el-table-column prop="menuName" label="菜单名称" width="100" />
+        <el-table-column prop="menuName" label="菜单名称" width="150" />
         <el-table-column prop="perms" label="权限名称" width="150" />
         <el-table-column prop="path" label="组件路径" width="170" />
         <el-table-column prop="componentPath" label="组件名称" width="120" />
@@ -32,8 +32,8 @@
         <el-table-column prop="updateTime" label="修改时间" width="120" />
         <el-table-column prop="remark" label="备注" width="120" />
         <el-table-column label="操作" width="150">
-            <template #default>
-                <el-button link type="primary" size="small">新增</el-button>
+            <template #default="scope">
+                <el-button link type="primary" size="small" v-if="scope.row.menuType != 2">新增</el-button>
                 <el-button link type="success" size="small">修改</el-button>
                 <el-button link type="danger" size="small">删除</el-button>
             </template>
@@ -51,8 +51,8 @@
             <el-row :gutter="50">
                 <el-col :span="12">
                     <el-form-item label="上级菜单" props="form.parentId">
-                        <el-tree-select v-model="form.parentId" :data="menuSelectData" :render-after-expand="false"
-                            placeholder="请选择上级菜单" style="width: 240px" />
+                        <el-tree-select check-strictly v-model="form.parentId" :data="menuSelectData"
+                            :render-after-expand="false" placeholder="请选择上级菜单" style="width: 240px" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
@@ -86,7 +86,7 @@
                 </el-col>
                 <el-col :span="12">
                     <el-form-item label="菜单名称" props="form.manuName">
-                        <el-input v-model="form.manuName" placeholder="请输入菜单名称" clearable />
+                        <el-input v-model="form.menuName" placeholder="请输入菜单名称" clearable />
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -117,7 +117,7 @@
                 </el-col>
             </el-row>
             <el-form-item label="状态" props="form.status">
-                <el-switch v-model="form.status" />
+                <el-switch v-model="form.status" active-value="1" inactive-value="0" />
             </el-form-item>
             <el-form-item label="备注" props="form.remark">
                 <el-input v-model="form.remark" placeholder="备注" clearable />
@@ -126,7 +126,7 @@
         <template #footer>
             <div class="dialog-footer">
                 <el-button @click="menuFormShow = false">取消</el-button>
-                <el-button type="primary" @click="menuFormShow = false">
+                <el-button type="primary" @click="handleSubmit">
                     提交
                 </el-button>
             </div>
@@ -137,7 +137,8 @@
 <script setup>
 import { ref,onMounted } from 'vue';
 import IconSelect from '@/components/IconSelect/index'
-import {searchMenuList} from '@/api/menu/index'
+import { searchMenuList, saveMenu } from '@/api/menu/index'
+import { ElMessage } from 'element-plus';
 let total = ref(0)
 let queryForm = ref({
     menuName: undefined,
@@ -237,6 +238,24 @@ function handleClose() {
 function handleSelect(name){
     form.value.icon=name;
 
+}
+//处理提交
+function handleSubmit(){
+    if(form.value.id){
+
+    }else{
+        saveMenu(form.value).then(res => {
+            if(res.data.code == 200){
+                //刷新列表
+                searchMenu();
+                ElMessage({
+                    message: '添加成功',
+                    type: 'success',
+                })
+                menuFormShow=false;
+            }
+        })
+    }
 }
 </script>
 <style lang="scss" scoped>

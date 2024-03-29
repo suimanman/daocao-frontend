@@ -11,6 +11,9 @@ import SvgIcon from '@/components/SvgIcon/index.vue';
 import 'virtual:svg-icons-register';
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+//引入elements-plus
+import "element-plus/theme-chalk/el-message.css";
+import "element-plus/theme-chalk/el-message-box.css";
 const app = createApp(App)
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)

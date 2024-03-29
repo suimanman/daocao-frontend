@@ -39,26 +39,19 @@ request.interceptors.request.use((config)=>{
 request.interceptors.response.use((response)=>{
     //判断响应码，后端返回的数据 code，data，msg
     let {msg,code}=response.data
-    console.log("code------->",code,"msg- ------->",msg);
     if(code == null){
         return response;
     }else if(code == 200){
         return response;
     }else if(code == 500){
-        ElMessage({
-            showClose: true,
-            message: '服务端异常！',
-            type: 'error',
-          })
+        ElMessage.error(msg);
     }else if(code == 401){
         ElMessage({
-            showClose: true,
             message: '没有操作权限！',
             type: 'error',
           })
     }else if(code == 403){
         ElMessage({
-            showClose: true,
             message: '登录过期！',
             type: 'error',
           })

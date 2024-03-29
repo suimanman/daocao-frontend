@@ -72,9 +72,9 @@ const loginForm=ref({
 function handleLogin(){
     //调用login方法
     login(loginForm.value).then((res)=>{
-        console.log('登录----->',res)
         //判断是否成功
         if(res.data.code == 200){
+            ElMessage.success("欢迎"+`${loginForm.value.account}`+"!")
             //将token存储到sessionStorage中
             setToken("daocaoToken",res.data.token);
             //TODO 查询用户的权限和菜单【设置页面路由实现动态路由】
