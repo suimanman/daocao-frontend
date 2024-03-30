@@ -185,10 +185,11 @@ onMounted(()=>{
 function searchMenu() {
     searchMenuList().then(res => {
         if (res.data.code == 200) {
-            menuList.value = res.data.data;
+            menuList.value = res.data.data.list;
+            total.value=res.data.data.total;
             let menuSelect=[];
             menuSelect.push({label:'主目录',value:0,children:[]})
-            for(const item of res.data.data){
+            for(const item of res.data.data.list){
                 let label=item.menuName;
                 let value = item.id;
                 let childrenList=[];
