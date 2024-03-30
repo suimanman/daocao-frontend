@@ -16,12 +16,11 @@
     <el-row :gutter="4">
         <el-col :span="6">
             <el-button type="primary" @click="handleAdd">新增</el-button>
-            <el-button type="success" @click="handleEdit">修改</el-button>
-            <el-button type="danger" @click="handleRemove">删除</el-button>
+            <el-button type="danger" @click="handleRemove(0)">删除</el-button>
         </el-col>
     </el-row>
     <!-- 列表 -->
-    <el-table :data="menuList" style="width: 100%" row-key="id">
+    <el-table :data="menuList" style="width: 100%" row-key="id" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" />
         <el-table-column type="index" label="序号" width="50" />
         <el-table-column prop="menuName" label="菜单名称" width="150" />
@@ -34,8 +33,8 @@
         <el-table-column label="操作" width="150">
             <template #default="scope">
                 <el-button link type="primary" size="small" v-if="scope.row.menuType != 2">新增</el-button>
-                <el-button link type="success" size="small">修改</el-button>
-                <el-button link type="danger" size="small">删除</el-button>
+                <el-button link type="success" size="small" @click="handleEdit(scope.row.id)">修改</el-button>
+                <el-button link type="danger" size="small" @click="handleRemove(scope.row.id)">删除</el-button>
             </template>
         </el-table-column>
     </el-table>
@@ -137,8 +136,9 @@
 <script setup>
 import { ref,onMounted } from 'vue';
 import IconSelect from '@/components/IconSelect/index'
-import { searchMenuList, saveMenu } from '@/api/menu/index'
-import { ElMessage } from 'element-plus';
+import { searchMenuList, saveMenu,searchMenuById,updateMenu,removeMenu} from '@/api/menu/index'
+import { ElMessage, ElMessageBox } from 'element-plus';
+let selectIds=ref([])
 let total = ref(0)
 let queryForm = ref({
     menuName: undefined,
@@ -217,19 +217,61 @@ function handleSizeChange() {
 function handleCurrentChange() {
 
 }
+//接受选中的数据
+function handleSelectionChange(selection){
+    let ids=selection.map(item => item.id);
+    selectIds.value=ids;
+}
 //新增
 function handleAdd() {
     menuFormShow.value = true;
     menuTitle.value = "新增菜单"
 }
 //修改
-function handleEdit() {
-    menuFormShow.value = true;
-    menuTitle.value = "修改菜单"
+function handleEdit(id) {
+    searchMenuById(id).then(res => {
+        if(res.data.code == 200){
+            menuFormShow.value = true;
+            form.value=res.data.data;
+            menuTitle.value = "修改菜单"
+        }else{
+            ElMessage.error("数据查询失败!")
+        }
+    })
+    
 }
 //删除
-function handleRemove() {
+function handleRemove(id) {
 
+    ElMessageBox.confirm(
+        '确定要删除数据吗？',
+        '菜单删除',
+        {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'error',
+        }
+    )
+        .then(() => {
+            let ids=undefined;
+            if(id>0){
+                ids=[id]
+            }else{
+                ids=selectIds.value;
+            }
+            removeMenu(ids).then(res => {
+                if (res.data.code == 200) {
+                    searchMenu();
+                    ElMessage({
+                        message: '删除成功',
+                        type: 'success',
+                    })
+                }
+            })
+        })
+        .catch(() => {
+            console.log("取消删除操作");
+        })
 }
 //关闭弹窗
 function handleClose() {
@@ -242,7 +284,17 @@ function handleSelect(name){
 //处理提交
 function handleSubmit(){
     if(form.value.id){
-
+        updateMenu(form.value).then(res =>{
+            if (res.data.code == 200) {
+                //刷新列表
+                searchMenu();
+                ElMessage({
+                    message: '修改成功',
+                    type: 'success',
+                })
+                menuFormShow.value = false;
+            }
+        })
     }else{
         saveMenu(form.value).then(res => {
             if(res.data.code == 200){
@@ -252,7 +304,7 @@ function handleSubmit(){
                     message: '添加成功',
                     type: 'success',
                 })
-                menuFormShow=false;
+                menuFormShow.value=false;
             }
         })
     }
